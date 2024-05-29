@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BIT.Data.Sync.EfCore.Npgsql" Version="8.0.2.1" />
+    <PackageReference Include="BIT.Data.Sync.EfCore.Pomelo.MySql" Version="8.0.2.1" />
+    <PackageReference Include="BIT.Data.Sync.EfCore.Sqlite" Version="8.0.2.1" />
+    <PackageReference Include="BIT.Data.Sync.EfCore.SqlServer" Version="8.0.2.1" />
+  </ItemGroup>
+
+</Project>
