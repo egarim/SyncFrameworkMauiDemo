@@ -5,8 +5,10 @@ using BIT.Data.Sync.EfCore.SQLite;
 using BIT.Data.Sync.EfCore.SqlServer;
 using BIT.Data.Sync.Imp;
 using BIT.EfCore.Sync;
+
 using Microsoft.EntityFrameworkCore;
 using Model.Contexts;
+using System.Collections.ObjectModel;
 
 namespace MauiClient
 {
@@ -17,22 +19,46 @@ namespace MauiClient
         public MainPage()
         {
             InitializeComponent();
+            Items=new ObservableCollection<Blog>();
+            this.BlogsListView.ItemsSource = Items;
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        public ObservableCollection<Blog> Items { get; set; }
+        private async void OnPush(object sender, EventArgs e)
         {
-            count++;
-
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            var Context = await InitSyncFramework(this.ServerUrl.Text) as TestSyncFrameworkDbContext;
+            await Context.PushAsync();
         }
+        private async void OnPull(object sender, EventArgs e)
+        {
+            var Context = await InitSyncFramework(this.ServerUrl.Text) as TestSyncFrameworkDbContext;
+         
+            await Context.PullAsync();
+
+            Context.Blogs.ToList().ForEach(x => Items.Add(x));
+        }
+        private async void Save(object sender, EventArgs e)
+        {
+            var Context = await InitSyncFramework(this.ServerUrl.Text);
+            Blog blog = new Blog
+            {
+                Name = this.BlogName.Text,
+            };
+            Context.Add(blog);
+            await Context.SaveChangesAsync();
+            Items.Add(blog);
+            this.BlogName.Text = "";
+           
+        }
+       
         private async void OnInitSyncFrameworkBtn(object sender, EventArgs e)
         {
           var Context=  await InitSyncFramework(this.ServerUrl.Text);
+          this.ServerUrlLabel.Text = this.ServerUrl.Text;
+
+            await DisplayAlert("SyncFramework", "Initialized", "OK");
+            this.ServerUrl.Text = "";
+
         }
         async Task<DbContext> InitSyncFramework(string SyncServerAddress)
         {
@@ -65,7 +91,7 @@ namespace MauiClient
             HttpClient client = new HttpClient { BaseAddress = baseAddress };
 
             //you can also use the extension method for specific providers
-            MauiServiceCollection.AddSyncFrameworkForSQLite(dbPathDelta, client, "MemoryDeltaStore1", "Node A", additionalDeltaGenerators);
+            MauiServiceCollection.AddSyncFrameworkForSQLite(dbPathDelta, client, "MemoryDeltaStore1", "Maui", additionalDeltaGenerators);
 
 
             YearSequencePrefixStrategy implementationInstance = new YearSequencePrefixStrategy();

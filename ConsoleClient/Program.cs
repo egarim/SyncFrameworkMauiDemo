@@ -65,8 +65,14 @@ namespace ConsoleClient
 
         static void Pull()
         {
+          
             // Add logic to pull data from the server here
             Console.WriteLine("Pulling data from the server...");
+            var ContextTask = InitSyncFramework(serverUrl) ;
+            ContextTask.Wait();
+            var Context = ContextTask.Result as TestSyncFrameworkDbContext;
+            Context.PullAsync().Wait();
+            Console.WriteLine("Done!");
             Pause();
         }
 
@@ -74,6 +80,11 @@ namespace ConsoleClient
         {
             // Add logic to push data to the server here
             Console.WriteLine("Pushing data to the server...");
+            var ContextTask = InitSyncFramework(serverUrl);
+            ContextTask.Wait();
+            var Context = ContextTask.Result as TestSyncFrameworkDbContext;
+            Context.PushAsync().Wait();
+            Console.WriteLine("Done!");
             Pause();
         }
 
@@ -121,7 +132,7 @@ namespace ConsoleClient
             HttpClient client = new HttpClient { BaseAddress = baseAddress };
 
             //you can also use the extension method for specific providers
-            MauiServiceCollection.AddSyncFrameworkForSqlServer(dbPathDelta, client, "MemoryDeltaStore1", "Node A", additionalDeltaGenerators);
+            MauiServiceCollection.AddSyncFrameworkForSqlServer(dbPathDelta, client, "MemoryDeltaStore1", "Console", additionalDeltaGenerators);
 
 
             YearSequencePrefixStrategy implementationInstance = new YearSequencePrefixStrategy();
